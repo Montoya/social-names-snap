@@ -7,7 +7,7 @@
     "url": "https://github.com/Montoya/social-names-snap.git"
   },
   "source": {
-    "shasum": "ACPnWAXyf2A/qkemSFnWJWdesyYJ7sXGcugPX3cvwhs=",
+    "shasum": "EnhWugRX+U9575R5BmnJxAgVvRffheRyEC3nr6hz170=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -18,7 +18,12 @@
     }
   },
   "initialPermissions": {
-    "endowment:name-lookup": {},
+    "endowment:name-lookup": {
+      "matchers": {
+        "tlds": ["lens"],
+        "schemes": ["fc", "farcaster"]
+      }
+    },
     "endowment:network-access": {},
     "endowment:lifecycle-hooks": {},
     "snap_dialog": {}
