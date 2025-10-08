@@ -3,7 +3,7 @@ import type {
   OnNameLookupHandler,
   OnInstallHandler
 } from '@metamask/snaps-sdk';
-import { Box, Heading, Text, Row, Italic, Divider } from "@metamask/snaps-sdk/jsx";
+import { Box, Heading, Text, Bold, Italic, Divider } from "@metamask/snaps-sdk/jsx";
 
 export const onNameLookup: OnNameLookupHandler = async (request) => {
   const { address, domain } = request;
@@ -11,48 +11,11 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
   if (address) {
     const resolvedDomains: DomainResolution[] = [];
 
-    // get owned handles on Lens Protocol
-    const optionsLens = {
-      method: 'POST',
-      headers: {
-        'User-Agent': 'spectaql',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: `query {
-          ownedHandles(request: { for: "${address}" }) {
-            items {
-              fullHandle
-              ownedBy
-              linkedTo {
-                contract {
-                  address
-                  chainId
-                }
-              }
-              suggestedFormatted {
-                full
-                localName
-              }
-            }
-            pageInfo {
-              next
-              prev
-            }
-          }
-        }`,
-      }),
-    };
-
-    const fetchLens = fetch('https://api-v2.lens.dev/', optionsLens).then(
-      async (response) => await response.json(),
-    );
-
     const optionsNeynar = {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        api_key: atob('QTQyQkM1OTUtRDI3OS00NkVELUI0RjAtQzAxN0ZEOTM0RjlB'), // eslint-disable-line @typescript-eslint/naming-convention
+        api_key: atob('NDY3RUJBRUEtOTM2Mi00M0U2LUI3OEUtRTU2ODZCQTlENTUy'), // eslint-disable-line @typescript-eslint/naming-convention
       },
     };
 
@@ -62,23 +25,10 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
     ).then(async (response) => await response.json());
 
     try {
-      const results = await Promise.allSettled([fetchLens, fetchNeynar]);
+      const results = await Promise.allSettled([fetchNeynar]);
 
-      // Process the results
-      const jsonLens =
-        results[0].status === 'fulfilled' ? results[0].value : null;
       const jsonNeynar =
-        results[1].status === 'fulfilled' ? results[1].value : null;
-
-      if (jsonLens.data?.ownedHandles?.items?.length) {
-        // we have at least one handle to return
-        jsonLens.data.ownedHandles.items.forEach((item: any) => {
-          resolvedDomains.push({
-            resolvedDomain: item.suggestedFormatted.full,
-            protocol: 'Lens Protocol',
-          });
-        });
-      }
+        results[0].status === 'fulfilled' ? results[0].value : null;
 
       if (jsonNeynar[address]) {
         jsonNeynar[address].forEach((item: any) => {
@@ -100,7 +50,8 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
   if (domain) {
     if (domain.startsWith('farcaster:') || domain.startsWith('fc:')) {
       const fcName = domain.split(':')[1];
-      if (!fcName) {
+      console.log(fcName);
+      if (!fcName || !/^[a-z0-9][a-z0-9-]{0,15}$/.test(fcName)) {
         return null;
       }
 
@@ -108,18 +59,20 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
         method: 'GET',
         headers: {
           accept: 'application/json',
-          api_key: atob('QTQyQkM1OTUtRDI3OS00NkVELUI0RjAtQzAxN0ZEOTM0RjlB'), // eslint-disable-line @typescript-eslint/naming-convention
+          api_key: atob('NDY3RUJBRUEtOTM2Mi00M0U2LUI3OEUtRTU2ODZCQTlENTUy'), // eslint-disable-line @typescript-eslint/naming-convention
         },
       };
 
       const response = await fetch(
-        `https://api.neynar.com/v2/farcaster/user/search?q=${fcName}&limit=1`,
+        `https://api.neynar.com/v2/farcaster/user/by_username?username=${fcName}`,
         options,
       );
       const json = await response.json();
 
-      if (json.result?.users?.length) {
-        const foundUser = json.result.users[0];
+      console.log(json); 
+
+      if (json.user) {
+        const foundUser = json.user;
         if (foundUser.username === fcName) {
           if (foundUser.verified_addresses?.eth_addresses?.length) {
             const foundAddress = foundUser.verified_addresses.eth_addresses[0];
@@ -135,35 +88,7 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
           }
         }
       }
-    } else if (domain.endsWith('.lens')) {
-      const lensHandle = domain.replace('.lens', '');
-
-      const options = {
-        method: 'POST',
-        headers: {
-          'User-Agent': 'spectaql',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: `query {
-            handleToAddress(request: { handle: "lens/${lensHandle}" })
-          }`,
-        }),
-      };
-
-      const response = await fetch('https://api-v2.lens.dev/', options);
-      const json = await response.json();
-
-      if (json.data?.handleToAddress) {
-        // found a match
-        const resolvedAddress = json.data.handleToAddress;
-        return {
-          resolvedAddresses: [
-            { resolvedAddress, protocol: 'Lens', domainName: domain },
-          ],
-        };
-      }
-    }
+    } 
   }
 
   return null;
@@ -178,16 +103,14 @@ export const onInstall: OnInstallHandler = async () => {
         <Box>
           <Heading>Installation successful 🎉</Heading>
           <Text>
-            Thank you for installing Social Names. Your MetaMask is now supercharged with support for Farcaster and Lens handles. From now on, when sending on any EVM network, you can type any of the following to resolve addresses from these protocols:.
+            MetaMask is now supercharged with support for Farcaster names (fnames). From now on, when sending on any EVM network, you can type either of the following to resolve fnames:.
           </Text>
           <Divider/>
-          <Row label="Lens Protocol"><Text>username.lens</Text></Row>
-          <Divider/>
-          <Row label="Farcaster"><Text>farcaster:username</Text></Row>
-          <Row label=" "><Text>fc:username</Text></Row>
+          <Text><Bold>farcaster:</Bold>username</Text>
+          <Text><Bold>fc:</Bold>username</Text>
           <Divider/>
           <Text>
-            When there are valid matches, you will be shown suggested addresses. <Italic>Please always take a moment to double check names and suggested addresses.</Italic>
+            When there are valid matches, you will be shown suggested addresses. <Italic>Please always take a moment to double check names and addresses.</Italic>
           </Text>
         </Box>
       ),

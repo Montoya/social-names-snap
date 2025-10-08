@@ -1,13 +1,13 @@
 {
-  "version": "0.1.3",
-  "description": "Adds support for Farcaster and Lens handles in MetaMask.",
-  "proposedName": "Social Names",
+  "version": "0.2.2",
+  "description": "Adds support for Farcaster names (fnames) in MetaMask.",
+  "proposedName": "Farcaster Names",
   "repository": {
     "type": "git",
     "url": "https://github.com/Montoya/social-names-snap.git"
   },
   "source": {
-    "shasum": "ACPnWAXyf2A/qkemSFnWJWdesyYJ7sXGcugPX3cvwhs=",
+    "shasum": "2hy0AiIg6+nfFmbb9s04qyjM0MAZCFgbDC3Dr6DXGGo=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -18,7 +18,14 @@
     }
   },
   "initialPermissions": {
-    "endowment:name-lookup": {},
+    "endowment:name-lookup": {
+      "matchers": {
+        "schemes": [
+          "fc",
+          "farcaster"
+        ]
+      }
+    },
     "endowment:network-access": {},
     "endowment:lifecycle-hooks": {},
     "snap_dialog": {}
