@@ -1,6 +1,6 @@
 {
   "name": "social-names-snap",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Adds support for Farcaster names (fnames) in MetaMask.",
   "repository": {
     "type": "git",
@@ -28,7 +28,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@metamask/snaps-sdk": "^6.1.1",
+    "@metamask/snaps-sdk": "^10.0.0",
     "buffer": "^6.0.3"
   },
   "devDependencies": {

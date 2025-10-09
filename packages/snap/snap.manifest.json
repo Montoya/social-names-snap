@@ -1,5 +1,5 @@
 {
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Adds support for Farcaster names (fnames) in MetaMask.",
   "proposedName": "Farcaster Names",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/Montoya/social-names-snap.git"
   },
   "source": {
-    "shasum": "2hy0AiIg6+nfFmbb9s04qyjM0MAZCFgbDC3Dr6DXGGo=",
+    "shasum": "8/GfXWzWfCCCuKeEmqnExFPK2rPYd+IsVSn1d0rmHxM=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -20,9 +20,10 @@
   "initialPermissions": {
     "endowment:name-lookup": {
       "matchers": {
-        "schemes": [
+        "tlds": [
           "fc",
-          "farcaster"
+          "farcaster",
+          "fcast.id"
         ]
       }
     },
